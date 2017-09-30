@@ -21,5 +21,6 @@ routers(databaseBS, Sequelize).apiRouters(router);
 // });
 app.set('port', (process.env.PORT || 5000));
 app.listen(app.get('port'), function () {
+    res.send('nkana api')
     console.log('Node app is running on port', app.get('port'));
 });
