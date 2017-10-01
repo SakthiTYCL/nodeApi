@@ -322,7 +322,7 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
                 var expertise = result.req.expertise;
                 var experience = result.req.experience;
                 var off_address = result.req.off_address
-                var cv = result.req.cv;
+                var cv = "result.req.cv";
                 var photo = result.req.photo;
                 var center = result.req.center;
 
