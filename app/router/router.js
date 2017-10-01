@@ -48,6 +48,7 @@ module.exports = function (databaseBS, Sequelize) {
         router.post('/viewChildrenReview', childrenReviewRouter.viewChildrenReview);
         router.post('/addfiles', registrationRouter.addfiles);
         router.post('/childphoto', childrenProfileRouter.childphoto);
+        router.post('/photoUpload', registrationRouter.photoUpload);
         router.get('/viewadmintracker', connectionRouter.viewadmintracker);
         router.post('/connectionapproval', connectionRouter.connectionapproval);
         router.post('/changeapproval', connectionRouter.changeapproval);

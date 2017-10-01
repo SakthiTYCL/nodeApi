@@ -104,6 +104,14 @@ module.exports = function (databaseBS, Sequelize) {
                         Sequelize,
                         res);
         }
+        registrationController.photoUpload = function (req, res, next) {
+                // console.log("hello");
+                registrationServiceObject.photoUpload(
+                        req,
+                        childrenProfileModel,
+                        Sequelize,
+                        res);
+        };
         // update Password end
         return registrationController;
 }
