@@ -17,7 +17,9 @@ module.exports = {
                 //     }
                 // }
             },
-
+            workflowstatus: {
+                type: Sequelize.STRING
+            },
             dob: {
                 type: Sequelize.STRING,
                 // validate: {
