@@ -171,14 +171,14 @@ module.exports = function (testmodel, databaseBS, Sequelize) {
         });
 
     };
-    childrenProfileService.viewSelectChild = function (req, testmodel, Sequelize, res) {
+    childrenProfileService.viewSelectChild = function (req, childrenProfileModel, Sequelize, res) {
         console.log("welcome to view and select a child");
 
-        return testmodel.findAll({
+        return childrenProfileModel.findAll({
             where: {
                 status: 1,
                 active_ind: 1,
-                connection_status: 0
+               workflowstatus_volunteer: ['AVL','ADM_DEC_VOL']
             }
         }).then(function (results) {
 

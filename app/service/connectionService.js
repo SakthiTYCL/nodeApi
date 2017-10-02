@@ -1,6 +1,9 @@
 var verification = require('../emailVerification/mailverification');
-module.exports = function (testmodel) {
+module.exports = function (testmodel, databaseBS, Sequelize) {
+    var helperObject = require('../helper/custom')(databaseBS, Sequelize);
     var connectionService = {};
+    var processType = '';
+    var actionType = '';
     connectionService.deniedvolunteernextchild = function (req, testmodel, childrenProfileModel, Sequelize, callBack) {
         var children_id = req.body.children_id;
         var role = req.body.role;
@@ -32,104 +35,98 @@ module.exports = function (testmodel) {
 
     };
 
-    connectionService.insertConneection = function (req, testmodel, childrenProfileModel, Sequelize, callBack) {
+    connectionService.insertConneection = function (req, statusflowModel, profileModel, connectionModel, childrenProfileModel, Sequelize, callBack) {
+        console.log("inside insert connection request service");
         var children_id = req.body.children_id;
         var role = req.body.role;
-        var profile_id = req.body.volunteer_id;
+        var profile_id = req.body.profile_id;
         var time = req.body.time;
-        testmodel.count({
+        var process = req.body.process;
+        var action = req.body.action;
+        var volunteer_id = req.body.volunteer_id;
+        console.log("volunteer id from req" + volunteer_id);
+        connectionModel.count({
             where: {
                 profile_id: profile_id,
             }
-        }).then(function (result1) {
-            if (result1 >= 1) {
+        }).then(function (result) {
+            console.log("my result value" + result);
+            if (result > 0) {
+                console.log("profile id already present");
                 var res = "1"
                 callBack(res);
             }
             else {
-                testmodel.create({
-                    children_id: children_id,
-                    role: role,
-                    profile_id: profile_id,
-                    flag: 0
-                }).then(function (results) {
-                    childrenProfileModel.update({
-                        connection_status: 1,
-                        updated_at: time
-                    }, {
+                helperObject.workflowstatus(process, action, statusflowModel, Sequelize, function (result) {
+                    var status = result[0].status;
+                    if (process == 'vc') {
+                        console.log("inside volunteer");
+                        connectionModel.create({
+                            children_id: children_id,
+                            role: role,
+                            profile_id: profile_id,
+                            flag: 0,
+                            active_ind: 1,
+                            workflowstatus: status
+                        }).then(function (results) {
+                            var workflowstatus = results.workflowstatus;
+                            helperObject.updateWorkFlowStatus(children_id, profile_id, workflowstatus, childrenProfileModel, profileModel, Sequelize, function (result) {
+                                if (result != null) {
+                                    console.log("success");
+                                    callBack("success");
+                                }
+                            })
+                        })
+                    }
+                    if (process == 'vcm') {
+                        console.log("volunteer id" + volunteer_id);
+                        connectionModel.findOne({
                             where: {
-                                id: results.children_id
+                                profile_id: volunteer_id
                             }
                         }).then(function (result) {
-                            var res = {};
-                            res.testmodel = results;
-                            res.testmodel = result1;
-                            res.childrenProfileModel = result;
-                            callBack(res);
+                            console.log("result of children" + result.children_id);
+                            var childrenid = result.children_id;
+                            connectionModel.create({
+                                children_id: childrenid,
+                                role: role,
+                                profile_id: profile_id,
+                                flag: 0,
+                                active_ind: 1,
+                                workflowstatus: status
+                            }).then(function (results) {
+                                var workflowstatus = results.workflowstatus;
+                                helperObject.updateWorkFlowStatus(childrenid, profile_id, workflowstatus, childrenProfileModel, profileModel, Sequelize, function (result) {
+                                    if (result != null) {
+                                        console.log("mentor success");
+                                        callBack("mentor success");
+                                    }
+                                })
+                            })
                         })
+
+                    }
                 })
             }
+        })
 
-        }).catch(function (error) {
-            callBack(error);
-        });
+
 
     };
     connectionService.mentorApproval = function (req, connectionModel, childrenProfileModel, profile, Sequelize, callBack) {
         var profileId = req.body.profileId;
-        var operation = req.body.operation;
-        var allDetails = {};
-        if (operation == "details") {
-            connectionModel.findOne({
-                where: {
-                    profile_id: profileId,
-                    approve_status: 0
-                }
-            }).then(function (result) {
-                console.log("cccc", result.children_id);
-                allDetails.childrenId = result.children_id;
-                connectionModel.findOne({
-                    where: {
-                        children_id: result.children_id,
-                        role: "volunteer"
-                    }
-                }).then(function (results) {
-
-                    allDetails.volunteerId = results.profile_id;
-                    childrenProfileModel.findOne({
-                        where: {
-                            id: allDetails.childrenId,
-                            mentor_approval: 0,
-
-                        }
-                    }).then(function (resultss) {
-                        allDetails.childrenResult = resultss;
-                        callBack(allDetails);
-                    })
-
-                })
-            })
-
-        }
-        if (operation == "accept") {
-            connectionModel.findOne({
-                where: {
-                    profile_id: profileId
-
-                }
-            }).then(function (result) {
-                childrenProfileModel.update({
-                    mentor_approval: 1
-                }, {
-                        where: {
-                            id: result.children_id
-                        }
-                    })
-            })
-        }
+        connectionModel.findOne({
+            where: {
+                profile_id: profileId,
+                workflowstatus:'REQ_INT_MEN'
+            }
+        }).then(function (results) {
+            callBack(results);
+        })
 
     }
-    connectionService.insertMentorConnection = function (req, connectionModel, Sequelize, callBack) {
+    connectionService.insertMentorConnection = function (req, connectionModel, childrenProfileModel, profile, Sequelize, callBack) {
+
         var volunteer_id = req.body.volunteerid;
         var profile_id = req.body.profile_id;
         var time = req.body.time;
@@ -152,7 +149,8 @@ module.exports = function (testmodel) {
                         children_id: results.children_id,
                         role: 2,
                         profile_id: profile_id,
-                        flag: 0
+                        flag: 0,
+                        active_ind: 1
                     }).then(function (result) {
                         callBack(result);
                     })
@@ -199,12 +197,12 @@ module.exports = function (testmodel) {
     };
     connectionService.viewchild = function (req, connectionModel, childrenProfileModel, Sequelize, res) {
         var id = req.body.id;
+        console.log("id"+id);
         connectionModel.belongsTo(childrenProfileModel, { foreignKey: 'children_id' });
-        connectionModel.findAll({
+        connectionModel.findOne({
             where: {
                 profile_id: id,
-                approve_status: 1
-
+                workflowstatus:'ADM_APP_VOL'
             },
 
             include: [
@@ -223,22 +221,21 @@ module.exports = function (testmodel) {
         connectionModel.findAll({
             where: {
                 profile_id: id,
-                approve_status: 1
             }
         }).then(function (result) {
-            // console.log("sdffffffffffffffffffffffffffffffffffffffffffffffffffff"+result[0].children_id);
+            var role;
             if ((result[0] != null) || (result == null)) {
-                var role1 = result[0].role;
-                if (role1 == "volunteer") {
-                    var role = "mentor";
+                if (result[0].role == 'volunteer') {
+                    role = 'mentor';
                 }
                 else {
-                    var role = "volunteer";
+                    role = 'volunteer';
                 }
                 connectionModel.findAll({
                     where: {
                         children_id: result[0].children_id,
-                        role: role
+                        role: role,
+                        workflowstatus:['ADM_APP_MEN','ADM_APP_VOL']
                     },
                     include: [
                         {
@@ -270,7 +267,7 @@ module.exports = function (testmodel) {
         connectionModel.findAll({
             where: {
                 children_id: id,
-                approve_status: 1 //approve_status
+                workflowstatus: ['ADM_APP_VOL', 'ADM_APP_MEN'] //approve_status
             },
 
             include: [
@@ -310,7 +307,7 @@ module.exports = function (testmodel) {
         if (connectionOperation == "volunteer") {
             connectionModel.findAll({
                 where: {
-                    approve_status: 0,
+                    workflowstatus: 'REQ_INT_VOL',
                     role: "volunteer",
                     flag: 0
                 },
@@ -336,7 +333,7 @@ module.exports = function (testmodel) {
         if (connectionOperation == "mentor") {
             connectionModel.findAll({
                 where: {
-                    approve_status: 0,
+                    workflowstatus: 'MEN_APP',
                     role: "mentor"
                 },
 
@@ -364,36 +361,33 @@ module.exports = function (testmodel) {
     }
 
 
-    connectionService.changeapproval = function (req, connectionModel, profile, Sequelize, res) {
-        var id = req.body.id;
+    connectionService.changeapproval = function (req, statusflowModel, connectionModel, childrenProfileModel, profile, Sequelize, res) {
+        console.log("change");
+        var children_id = req.body.children_id;
         var profile_id = req.body.profile_id;
         console.log("hjjjjjjjjjjjjjjjjjjj" + profile_id);
-        var status = req.body.status;
+        var process = req.body.process;
+        var action = req.body.action;
         var time = req.body.time;
-        // if (status == true) {
-        profile.findAll({
-            where: {
-                id: profile_id
-            }
-        }).then(function (profile_find) {
-            connectionModel.update({
-                approve_status: 1,
-                updated_at: time
-            },
-                {
-                    where: {
-                        id: id
-                    }
+        helperObject.workflowstatus(process, action, statusflowModel, Sequelize, function (result) {
+            var status = result[0].status;
+            if ('ADM_APP_VOL' == status || 'ADM_APP_MEN' == status || 'MEN_APP' == status) {
+                connectionModel.update({
+                    workflowstatus: status
+                },
+                    {
+                        where: {
+                            profile_id: profile_id
+                        }
 
-                }).then(function (result) {
-                    // console.log("sdddddddddddddddddddddddddddddddddddddddddddddddddddddddddz" + result);
-                    profile.update({
-                        connection_status: 1,
-                        updated_at: time
-                    },
-                        {
-                            where: {
-                                id: profile_id
+                    }).then(function (results) {
+                        console.log("status" + status);
+                        var workflowstatus = status;
+                        console.log("workflw" + workflowstatus);
+                        helperObject.updateWorkFlowStatus(children_id, profile_id, workflowstatus, childrenProfileModel, profile, Sequelize, function (result) {
+                            if (result != null) {
+                                console.log("success");
+                                res.send("success");
                             }
                         }).then(function (results) {
                             var mailOptions = {
@@ -411,74 +405,52 @@ module.exports = function (testmodel) {
                             });
                             res.send(results);
                         });
-                })
-        });
-        // }
-        // else {
-        //     connectionModel.update({
-        //         flag: 1
-        //     },
-        //         {
-        //             where: {
-        //                 id: id
-        //             }
-        //         }).then(function (result) {
-        //             res.send(result);
-        //         })
-        // }
-    }
-
-    connectionService.denyapprovalconnection = function (req, connectionModel, profile, Sequelize, res) {
-        var id = req.body.id;
-        var profile_id = req.body.profile_id;
-        console.log("hjjjjjjjjjjjjjjjjjjj" + profile_id);
-        var status = req.body.status;
-        var time = req.body.time;
-        var childrenid = req.body.childrenprofileid;
-        profile.findAll({
-            where: {
-                id: profile_id
+                    })
             }
-        }).then(function (profile_find) {
-            connectionModel.update({
-                approve_status: 2,
-                updated_at: time
-            },
-                {
+            if ('ADM_DEC_VOL' == status || 'ADM_DEC_MEN' == status || 'MEN_DEC' == status) {
+                connectionModel.destroy({
                     where: {
-                        id: id
+                        profile_id: profile_id
                     }
 
-                }).then(function (result) {
-                    // console.log("sdddddddddddddddddddddddddddddddddddddddddddddddddddddddddz" + result);
-                    profile.update({
-                        connection_status: 0,
-                        updated_at: time
-                    },
-                        {
-                            where: {
-                                id: childrenid
+                }).then(function (results) {
+                    console.log("status" + status);
+                    var workflowstatus = status;
+                    console.log("workflw" + workflowstatus);
+                    helperObject.updateWorkFlowStatus(children_id, profile_id, workflowstatus, childrenProfileModel, profile, Sequelize, function (result) {
+                        if (result != null) {
+                            console.log("success");
+                            res.send("success");
+                        }
+                    }).then(function (results) {
+                        var mailOptions = {
+                            to: profile_find[0].email_id,
+                            subject: "Children Connection Declined",
+                            text: "The child you are requested has been Declined by admin"
+                        }
+                        verification.smtpTransport.sendMail(mailOptions, function (error, response) {
+                            if (error) {
+                                // console.log(error);
+                                res.end("error");
                             }
-                        }).then(function (results) {
-                            var mailOptions = {
-                                to: profile_find[0].email_id,
-                                subject: "Children Connection Denied",
-                                text: "The child you are requested has been approved by Denied"
+                            else {
                             }
-                            verification.smtpTransport.sendMail(mailOptions, function (error, response) {
-                                if (error) {
-                                    // console.log(error);
-                                    res.end("error");
-                                }
-                                else {
-                                }
-                            });
-                            res.send(results);
                         });
-                });
-        });
+                        res.send(results);
+                    });
+                })
+            }
 
+
+
+        })
     }
+
+
+
+
+
+
     connectionService.viewadmintracker = function (req, connectionModel, profile, profileinfo, childrenProfileModel, Sequelize, callBack) {
 
         childrenProfileModel.hasMany(connectionModel, { foreignKey: 'children_id' });
@@ -511,12 +483,12 @@ module.exports = function (testmodel) {
         })
     }
 
-    connectionService.volunteerhomeviewmentor = function (req, testmodel, Sequelize, callBack) {
+    connectionService.volunteerhomeviewmentor = function (req, connectionModel, Sequelize, callBack) {
         var id = req.body.id;
-        testmodel.findAll({
+        connectionModel.findAll({
             where: {
                 profile_id: id,
-                approve_status: 1
+                workflowstatus: 'ADM_APP_VOL'
             }
         }).then(function (result) {
 
@@ -526,7 +498,7 @@ module.exports = function (testmodel) {
             else {
                 var id = result[0].children_id;
                 console.log("aaaaaaaaaaaaaaaaaaa" + id);
-                testmodel.count({
+                connectionModel.count({
                     where: {
                         children_id: id,
                         role: "mentor"
@@ -545,7 +517,31 @@ module.exports = function (testmodel) {
         })
 
     }
+    connectionService.screenstatusService = function (req, childrenProfileModel, profileModel, Sequelize, callBack) {
+        console.log("service of screenstatus");
+        var id = req.body.id;
+        var role = req.body.role;
+        if ('children' == role) {
+            childrenProfileModel.findOne({
+                where: {
+                    id: id
+                }
+            }).then(function (result) {
+                callBack(result);
+            })
+        }
+        if ('volunteer' == role || 'mentor' == role) {
+            profileModel.findOne({
+                where: {
+                    id: id
 
+                }
+            }).then(function (result) {
+                callBack(result);
+            })
+        }
+
+    }
 
     return connectionService;
 }

@@ -3,7 +3,8 @@ module.exports = function (databaseBS, Sequelize) {
     var childrenProfileModel = require('../module/childrenprofile').ChildrenProfileDetial(databaseBS, Sequelize, "childrenprofiles");
     var profileinfo = require('../module/profileinfo').UserDetial(databaseBS, Sequelize, "profileinfos");
     var profile = require('../module/profile').UserDetial(databaseBS, Sequelize, "profiles");
-    var connectionServiceObject = require('../service/connectionService')(connectionModel);
+    var statusflow = require('../module/statusflow').UserDetial(databaseBS, Sequelize, "statusflow");
+    var connectionServiceObject = require('../service/connectionService')(connectionModel,databaseBS, Sequelize);
 
     var connectionController = {};
 
@@ -24,6 +25,8 @@ module.exports = function (databaseBS, Sequelize) {
 
         connectionServiceObject.insertConneection(
             req,
+            statusflow,
+            profile,
             connectionModel,
             childrenProfileModel,
             Sequelize,
@@ -43,6 +46,9 @@ module.exports = function (databaseBS, Sequelize) {
         connectionServiceObject.insertMentorConnection(
             req,
             connectionModel,
+            childrenProfileModel,
+            profile,
+            statusflow,
             Sequelize,
             function (results) {
                 res.send(results);
@@ -121,7 +127,9 @@ module.exports = function (databaseBS, Sequelize) {
     connectionController.changeapproval = function (req, res, next) {
         connectionServiceObject.changeapproval(
             req,
+            statusflow,
             connectionModel,
+            childrenProfileModel,
             profile,
             Sequelize,
             res);
@@ -154,7 +162,18 @@ module.exports = function (databaseBS, Sequelize) {
                 res.send(results);
             });
     };
-   
+    connectionController.screenStatus = function (req, res, next) {
+        console.log("screenstatus controlller");
+        connectionServiceObject.screenstatusService(
+            req,
+            childrenProfileModel,
+            profile,
+            Sequelize,
+            function (results) {
+                res.send(results);
+            });
+
+    };
 
     return connectionController;
 };

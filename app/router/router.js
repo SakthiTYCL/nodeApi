@@ -48,7 +48,7 @@ module.exports = function (databaseBS, Sequelize) {
         router.post('/viewChildrenReview', childrenReviewRouter.viewChildrenReview);
         router.post('/addfiles', registrationRouter.addfiles);
         router.post('/childphoto', childrenProfileRouter.childphoto);
-        router.post('/photoUpload', registrationRouter.photoUpload);
+        router.post('/photoUpload', registrationRouter.photoUpload);        
         router.get('/viewadmintracker', connectionRouter.viewadmintracker);
         router.post('/connectionapproval', connectionRouter.connectionapproval);
         router.post('/changeapproval', connectionRouter.changeapproval);
@@ -68,6 +68,7 @@ module.exports = function (databaseBS, Sequelize) {
         router.post('/cumulativegraphwithdate', trackerRouter.cumulativegraphwithdate);
         router.post('/contactUs', registrationRouter.contactUs);
         router.post('/mentorapproval', connectionRouter.mentorApproval);
+        router.post('/screenstatus', connectionRouter.screenStatus);
 
     }
     return ApiRouter;
