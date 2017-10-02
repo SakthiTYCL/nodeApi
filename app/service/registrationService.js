@@ -519,9 +519,10 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
 
     }
     // update Password mailId and dob checked starts
-    registrationService.forgotPassword = function (req, profile, ProfileInfo, login, Sequelize, res) {
+    registrationService.forgotPassword = function (req, profile, login, Sequelize, res) {
         var email_id = req.body.email;
         var mobile_no = req.body.mobileNo;
+        var BASEURL = req.body.BASEURL;
         profile.findAll({
             where: {
                 email_id: email_id,
@@ -532,12 +533,12 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
                 var mailOptions = {
                     to: findResult[0].email_id,
                     subject: "Forgot Password",
-                    text: "Please click this link To Reset the passwoed http://nkanaapi-sakthi3964.rhcloud.com/app/forgotPassword/view/forgotPassword.html?id=" + findResult[0].encrypted_email
+                   text: "Please click this link To Reset the password " + BASEURL +"/app/forgotPassword/view/forgotPassword.html?id=" + findResult[0].encrypted_email
                 }
                 verification.smtpTransport.sendMail(mailOptions, function (error, response) {
                     if (error) {
                         // console.log(error);
-                        res.end("error");
+                        res.send("error");
                     } else {
                         console.log("Message sent: " + response.message);
                         // res.end("Mail has been sent please open and check it");
@@ -547,9 +548,9 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
 
             }
             else {
-                res.send("Email id or mobile no mismatched");
+                res.send("1");
             }
-
+            res.send("2");  
 
         })
     }
