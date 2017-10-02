@@ -4,6 +4,12 @@ module.exports = {
             full_name: {
                 type: Sequelize.STRING
             },
+            workflowstatus_volunteer: {
+                type: Sequelize.STRING
+            },
+            workflowstatus_mentor: {
+                type: Sequelize.STRING
+            },
             connection_status: {
                 type: Sequelize.INTEGER
             },

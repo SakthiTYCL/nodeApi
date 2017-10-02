@@ -23,6 +23,9 @@ module.exports = {
             approve_status: {
                 type: Sequelize.INTEGER
             },
+            workflowstatus: {
+                type: Sequelize.STRING
+            },
             updated_at:{
                 type:Sequelize.STRING
             }
