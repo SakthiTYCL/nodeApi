@@ -323,6 +323,7 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
                 var experience = result.req.experience;
                 var off_address = result.req.off_address
                 var cv = "result.req.cv";
+                var BASEURL = result.req.BASEURL;
                 var photo = result.req.photo;
                 var center = result.req.center;
 
@@ -382,7 +383,7 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
                             var mailOptions = {
                                 to: email_id,
                                 subject: "Verification mail",
-                                text: "Please click this link To Verify http://nkanaapi-sakthi3964.rhcloud.com/app/emailVerification/view/verification.html?id=" + encrypted_email
+                                text: "Please click this link To Verify" + BASEURL + "/app/emailVerification/view/verification.html?id=" + encrypted_email
                             }
                             verification.smtpTransport.sendMail(mailOptions, function (error, response) {
                                 if (error) {
