@@ -343,7 +343,8 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
                     email_id: email_id,
                     encrypted_email: encrypted_email,
                     password: hashed,
-                    phone: phone
+                    phone: phone,
+                    workflowstatus: 'AVL'
 
                 }).then(function (result) {
                     console.log("sucses");

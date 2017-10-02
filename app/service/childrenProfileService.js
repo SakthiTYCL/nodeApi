@@ -56,7 +56,9 @@ module.exports = function (testmodel, databaseBS, Sequelize) {
                     role: role,
                     center: center,
                     photos:photos,
-                    active_ind: 1
+                    active_ind: 1,
+                    workflowstatus_volunteer:'AVL',
+                    workflowstatus_mentor:'AVL'
                 }).then(function (result) {
                     login.create({
                         status: 1,
