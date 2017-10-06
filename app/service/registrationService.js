@@ -284,7 +284,7 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
 
     // };
     registrationService.InsertProfile = function (req, profilemodel, profileinfomodel, childrenProfileModel, login, Sequelize, callBack) {
-
+        var BASEURL = req.body.BASEURL;
         helperObject.memvalidation(req, profile, childrenProfileModel, Sequelize, function (result) {
 
             console.log(result);
@@ -323,7 +323,6 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
                 var experience = result.req.experience;
                 var off_address = result.req.off_address
                 var cv = "result.req.cv";
-                var BASEURL = result.req.BASEURL;
                 var photo = result.req.photo;
                 var center = result.req.center;
 
@@ -535,7 +534,7 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
                 var mailOptions = {
                     to: findResult[0].email_id,
                     subject: "Forgot Password",
-                   text: "Please click this link To Reset the password " + BASEURL +"/app/forgotPassword/view/forgotPassword.html?id=" + findResult[0].encrypted_email
+                    text: "Please click this link To Reset the password " + BASEURL + "/app/forgotPassword/view/forgotPassword.html?id=" + findResult[0].encrypted_email
                 }
                 verification.smtpTransport.sendMail(mailOptions, function (error, response) {
                     if (error) {
@@ -552,7 +551,7 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
             else {
                 res.send("1");
             }
-            res.send("2");  
+            res.send("2");
 
         })
     }
