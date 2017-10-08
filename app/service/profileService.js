@@ -82,6 +82,7 @@ module.exports = function (testmodel) {
                     },
                     include: [
                         {
+                            
                             model: profileinfo,
                         }
                     ]
