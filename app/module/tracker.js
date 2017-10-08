@@ -50,6 +50,9 @@ module.exports = {
             },
             created_at:{
                 type: Sequelize.STRING
+            },
+            updated_at:{
+                type:Sequelize.STRING
             }
             
              });

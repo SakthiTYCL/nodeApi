@@ -78,7 +78,7 @@ module.exports = function (testmodel) {
                         connection_status: 0,
                         approvedstatus:1,
                         verification_status: 1, // verification statuss 
-                        workflowstatus:['AVL','MEN_DEC']
+                        workflowstatus:['AVL','MEN_DEC','ADM_DEC_MEN']
                     },
                     include: [
                         {
