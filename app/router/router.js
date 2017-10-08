@@ -29,7 +29,7 @@ module.exports = function (databaseBS, Sequelize) {
         router.get('/loginactivechange', loginactiveChangeRouter.loginactivechange); // list details for login active change page
         router.get('/approvevolunteer', registrationRouter.viewVolunteerToApprove); // 
         router.post('/changestatus', registrationRouter.changeStatusController);
-        router.get('/listofmentor', profileRouter.listofmentor);//display list of mentor for both admin side and vounteer side
+        router.post('/listofmentor', profileRouter.listofmentor);//display list of mentor for both admin side and vounteer side
         router.post('/viewmentor', profileRouter.viewmentor);//Select paticular mentor for both admin and volunteer side
         router.get('/listchild', childrenProfileRouter.listchild);
         router.post('/denydetails', connectionRouter.denydetails);// approve status checking for providing deny message after ordering profile id
