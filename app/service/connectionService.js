@@ -115,12 +115,20 @@ module.exports = function (testmodel, databaseBS, Sequelize) {
     };
     connectionService.mentorApproval = function (req, connectionModel, childrenProfileModel, profile, Sequelize, callBack) {
         var profileId = req.body.profileId;
+        connectionModel.belongsTo(childrenProfileModel, { foreignKey: 'children_id' });
         connectionModel.findOne({
             where: {
                 profile_id: profileId,
                 workflowstatus:'REQ_INT_MEN'
-            }
+            },
+            include: [
+                {
+                    model: childrenProfileModel
+                },
+            ]
+            
         }).then(function (results) {
+            
             callBack(results);
         })
 
@@ -275,6 +283,7 @@ module.exports = function (testmodel, databaseBS, Sequelize) {
             }
             if(role=='mentor')
                 {
+                    console.log("mentor");
                     profile.findOne({
                         where:{
                             role:role,
@@ -326,6 +335,11 @@ module.exports = function (testmodel, databaseBS, Sequelize) {
                                 }
                             });
                         }
+                        else
+                            {
+                                res.send(result);
+                            }
+                        
                     })
                 }
        
@@ -544,7 +558,7 @@ module.exports = function (testmodel, databaseBS, Sequelize) {
                 {
                     model: connectionModel,
                     where: {
-                        approve_status: 1,
+                        workflowstatus: ['ADM_APP_VOL','ADM_APP_MEN'],
                         // active_ind: 1
                     },
                     include: [
