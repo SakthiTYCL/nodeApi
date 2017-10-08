@@ -284,7 +284,7 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
 
     // };
     registrationService.InsertProfile = function (req, profilemodel, profileinfomodel, childrenProfileModel, login, Sequelize, callBack) {
-
+        var BASEURL = req.body.BASEURL;
         helperObject.memvalidation(req, profile, childrenProfileModel, Sequelize, function (result) {
 
             console.log(result);
@@ -343,7 +343,8 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
                     email_id: email_id,
                     encrypted_email: encrypted_email,
                     password: hashed,
-                    phone: phone
+                    phone: phone,
+                    workflowstatus: 'AVL'
 
                 }).then(function (result) {
                     console.log("sucses");
@@ -381,7 +382,7 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
                             var mailOptions = {
                                 to: email_id,
                                 subject: "Verification mail",
-                                text: "Please click this link To Verify http://nkanaapi-sakthi3964.rhcloud.com/app/emailVerification/view/verification.html?id=" + encrypted_email
+                                text: "Please click this link To Verify" + BASEURL + "/app/emailVerification/view/verification.html?id=" + encrypted_email
                             }
                             verification.smtpTransport.sendMail(mailOptions, function (error, response) {
                                 if (error) {
@@ -533,7 +534,7 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
                 var mailOptions = {
                     to: findResult[0].email_id,
                     subject: "Forgot Password",
-                   text: "Please click this link To Reset the password " + BASEURL +"/app/forgotPassword/view/forgotPassword.html?id=" + findResult[0].encrypted_email
+                    text: "Please click this link To Reset the password " + BASEURL + "/app/forgotPassword/view/forgotPassword.html?id=" + findResult[0].encrypted_email
                 }
                 verification.smtpTransport.sendMail(mailOptions, function (error, response) {
                     if (error) {
@@ -550,7 +551,7 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
             else {
                 res.send("1");
             }
-            res.send("2");  
+            res.send("2");
 
         })
     }

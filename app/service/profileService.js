@@ -67,24 +67,47 @@ module.exports = function (testmodel) {
     profileService.listofmentor = function (req, testmodel, profileinfo, Sequelize, res) {
         console.log("welcome to view Volunteer");
 
-        var role = 'mentor';
+        var role = req.body.role;
+        console.log("-------------------"+role)
         testmodel.belongsTo(profileinfo, { foreignKey: 'id' });
-        testmodel.findAll({
-            where: {
-                role: role,
-                connection_status: 0,
-                approvedstatus:1,
-                verification_status: 1, // verification statuss 
-                workflowstatus:['AVL','DEC']
-            },
-            include: [
+        if('volunteer'==role)
+            {
+                testmodel.findAll({
+                    where: {
+                        role: 'mentor',
+                        connection_status: 0,
+                        approvedstatus:1,
+                        verification_status: 1, // verification statuss 
+                        workflowstatus:['AVL','MEN_DEC','ADM_DEC_MEN']
+                    },
+                    include: [
+                        {
+                            
+                            model: profileinfo,
+                        }
+                    ]
+                }).then(function (results) {
+                    res.send(results);
+                });
+            }
+            if('admin'==role)
                 {
-                    model: profileinfo,
+                    testmodel.findAll({
+                        where: {
+                            role: 'mentor',
+                            approvedstatus:1,
+                            verification_status: 1, // verification statuss 
+                        },
+                        include: [
+                            {
+                                model: profileinfo,
+                            }
+                        ]
+                    }).then(function (results) {
+                        res.send(results);
+                    }); 
                 }
-            ]
-        }).then(function (results) {
-            res.send(results);
-        });
+       
 
     };
 

@@ -115,12 +115,20 @@ module.exports = function (testmodel, databaseBS, Sequelize) {
     };
     connectionService.mentorApproval = function (req, connectionModel, childrenProfileModel, profile, Sequelize, callBack) {
         var profileId = req.body.profileId;
+        connectionModel.belongsTo(childrenProfileModel, { foreignKey: 'children_id' });
         connectionModel.findOne({
             where: {
                 profile_id: profileId,
                 workflowstatus:'REQ_INT_MEN'
-            }
+            },
+            include: [
+                {
+                    model: childrenProfileModel
+                },
+            ]
+            
         }).then(function (results) {
+            
             callBack(results);
         })
 
@@ -202,7 +210,7 @@ module.exports = function (testmodel, databaseBS, Sequelize) {
         connectionModel.findOne({
             where: {
                 profile_id: id,
-                workflowstatus:'ADM_APP_VOL'
+                workflowstatus:['ADM_APP_VOL','ADM_APP_MEN']
             },
 
             include: [
@@ -216,48 +224,125 @@ module.exports = function (testmodel, databaseBS, Sequelize) {
     };
     connectionService.viewvolunteermentorprofile = function (req, connectionModel, profile, profileinfo, Sequelize, res) {
         var id = req.body.id;
-        connectionModel.belongsTo(profile, { foreignKey: 'profile_id' });
-        profile.belongsTo(profileinfo, { foreignKey: 'id' });
-        connectionModel.findAll({
-            where: {
-                profile_id: id,
-            }
-        }).then(function (result) {
-            var role;
-            if ((result[0] != null) || (result == null)) {
-                if (result[0].role == 'volunteer') {
-                    role = 'mentor';
-                }
-                else {
-                    role = 'volunteer';
-                }
-                connectionModel.findAll({
-                    where: {
-                        children_id: result[0].children_id,
-                        role: role,
-                        workflowstatus:['ADM_APP_MEN','ADM_APP_VOL']
-                    },
-                    include: [
+        var role=req.body.role;
+        if(role=='volunteer')
+            {
+                profile.findOne({
+                    where:{
+                        role:role,
+                        id:id,
+                        workflowstatus:'ADM_APP_VOL'
+                    }       
+                }).then(function(result){
+                    if(result!=null)
                         {
-                            model: profile,
-
-                            include: [
-                                {
-                                    model: profileinfo
-                                },
-
-                            ]
-                        },
-
-                    ]
-                }).then(function (results) {
-                    res.send(results);
+                            connectionModel.belongsTo(profile, { foreignKey: 'profile_id' });
+                            profile.belongsTo(profileinfo, { foreignKey: 'id' });
+                            connectionModel.findAll({
+                                where: {
+                                    profile_id: id,
+                                }
+                            }).then(function (result) {
+                                var role;
+                                if ((result[0] != null) || (result == null)) {
+                                    if (result[0].role == 'volunteer') {
+                                        role = 'mentor';
+                                    }
+                                    else {
+                                        role = 'volunteer';
+                                    }
+                                    connectionModel.findAll({
+                                        where: {
+                                            children_id: result[0].children_id,
+                                            role: role,
+                                            workflowstatus:['ADM_APP_MEN','ADM_APP_VOL']
+                                        },
+                                        include: [
+                                            {
+                                                model: profile,
+                    
+                                                include: [
+                                                    {
+                                                        model: profileinfo
+                                                    },
+                    
+                                                ]
+                                            },
+                    
+                                        ]
+                                    }).then(function (results) {
+                                        res.send(results);
+                                    })
+                                }
+                                else {
+                                    res.send("Data Not Found");
+                                }
+                            });
+                        }
                 })
             }
-            else {
-                res.send("Data Not Found");
-            }
-        });
+            if(role=='mentor')
+                {
+                    console.log("mentor");
+                    profile.findOne({
+                        where:{
+                            role:role,
+                            id:id,
+                            workflowstatus:'ADM_APP_MEN'
+                        }       
+                    }).then(function(result){
+                        if(result!=null){
+                            connectionModel.belongsTo(profile, { foreignKey: 'profile_id' });
+                            profile.belongsTo(profileinfo, { foreignKey: 'id' });
+                            connectionModel.findAll({
+                                where: {
+                                    profile_id: id,
+                                }
+                            }).then(function (result) {
+                                var role;
+                                if ((result[0] != null) || (result == null)) {
+                                    if (result[0].role == 'volunteer') {
+                                        role = 'mentor';
+                                    }
+                                    else {
+                                        role = 'volunteer';
+                                    }
+                                    connectionModel.findAll({
+                                        where: {
+                                            children_id: result[0].children_id,
+                                            role: role,
+                                            workflowstatus:['ADM_APP_MEN','ADM_APP_VOL']
+                                        },
+                                        include: [
+                                            {
+                                                model: profile,
+                    
+                                                include: [
+                                                    {
+                                                        model: profileinfo
+                                                    },
+                    
+                                                ]
+                                            },
+                    
+                                        ]
+                                    }).then(function (results) {
+                                        res.send(results);
+                                    })
+                                }
+                                else {
+                                    res.send("Data Not Found");
+                                }
+                            });
+                        }
+                        else
+                            {
+                                res.send(result);
+                            }
+                        
+                    })
+                }
+       
     };
 
     connectionService.viewchildvolunteer = function (req, connectionModel, profile, profileinfo, Sequelize, res) {
@@ -340,9 +425,9 @@ module.exports = function (testmodel, databaseBS, Sequelize) {
                 include: [
                     {
                         model: childrenProfileModel,
-                        where: {
-                            mentor_approval: 1
-                        }
+                        // where: {
+                        //     mentor_approval: 1
+                        // }
                     },
                     {
                         model: profile,
@@ -363,12 +448,21 @@ module.exports = function (testmodel, databaseBS, Sequelize) {
 
     connectionService.changeapproval = function (req, statusflowModel, connectionModel, childrenProfileModel, profile, Sequelize, res) {
         console.log("change");
-        var children_id = req.body.children_id;
+      //  var children_id = req.body.children_id;
         var profile_id = req.body.profile_id;
         console.log("hjjjjjjjjjjjjjjjjjjj" + profile_id);
         var process = req.body.process;
         var action = req.body.action;
         var time = req.body.time;
+        connectionModel.findOne({
+            where: {
+                profile_id: profile_id
+            }
+        }).then(function(result){
+            if(result!=null)
+                {
+                    var children_id=result.children_id;
+                      
         helperObject.workflowstatus(process, action, statusflowModel, Sequelize, function (result) {
             var status = result[0].status;
             if ('ADM_APP_VOL' == status || 'ADM_APP_MEN' == status || 'MEN_APP' == status) {
@@ -441,9 +535,10 @@ module.exports = function (testmodel, databaseBS, Sequelize) {
                 })
             }
 
-
-
         })
+                }
+        })
+      
     }
 
 
@@ -463,7 +558,7 @@ module.exports = function (testmodel, databaseBS, Sequelize) {
                 {
                     model: connectionModel,
                     where: {
-                        approve_status: 1,
+                        workflowstatus: ['ADM_APP_VOL','ADM_APP_MEN'],
                         // active_ind: 1
                     },
                     include: [
