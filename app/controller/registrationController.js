@@ -16,6 +16,10 @@ module.exports = function (databaseBS, Sequelize) {
                         Sequelize,
                         function (results) {
                                 console.log("my controller result"+JSON.stringify(results));
+                                if(results.emailidpresent == 1)
+                                        {
+                                                console.log("your email id already present please choose some other email id");
+                                        }
                                 res.send(results);
                         });
                 console.log("controller reggggggggggistration" + req.body.name);
