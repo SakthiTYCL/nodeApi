@@ -593,9 +593,11 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
                 id: userId
             }
         }).then(function (result) {
+            var mail = result.email_id;
+            console.log("mailllllll"+mail);
             var mailOptions = {
                 to: to,
-                subject: subject,
+                subject: subject +" - From:" +mail,
                 text: other_comments
             }
             verification.smtpTransport.sendMail(mailOptions, function (error, response) {
