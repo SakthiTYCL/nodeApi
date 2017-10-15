@@ -15,6 +15,7 @@ module.exports = function (databaseBS, Sequelize) {
                         login,
                         Sequelize,
                         function (results) {
+                                console.log("my controller result"+results);
                                 res.send(results);
                         });
                 console.log("controller reggggggggggistration" + req.body.name);
