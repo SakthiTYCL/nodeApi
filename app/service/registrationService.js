@@ -405,7 +405,7 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
             else {
                 var error = {};
                 error.message = 1;
-                console.log("service else condition"+result);
+                console.log("service else condition"+JSON.stringify(result));
                 callBack(result);
             }   
 
