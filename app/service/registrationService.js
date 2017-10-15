@@ -287,7 +287,7 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
         var BASEURL = req.body.BASEURL;
         helperObject.memvalidation(req, profile, childrenProfileModel, Sequelize, function (result) {
 
-            console.log(result);
+            console.log("my server result from helper"+result);
             if (result.msg == '0') {
                 var role = result.req.role;
                 var name = result.req.name;
@@ -405,8 +405,9 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
             else {
                 var error = {};
                 error.message = 1;
+                console.log("service else condition"+JSON.stringify(result));
                 callBack(result);
-            }
+            }   
 
         })
 
