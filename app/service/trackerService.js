@@ -127,23 +127,22 @@ module.exports = function (testmodel) {
             });
         })
     };
-    trackerService.reviewGraph = function (req, trackerModel,connectionModel, Sequelize, res) {
+    trackerService.reviewGraph = function (req, trackerModel, connectionModel, Sequelize, res) {
 
         console.log("welcome to listing of review details of tracker  of users");
         var childId = req.body.childId;
         var role = req.body.role;
-        if( role == 'volunteer')
-        {
-              trackerModel.findOne({ where: { created_at: req.body.date, profile_id: req.body.profileId } })
+        if (role == 'volunteer') {
+            trackerModel.findOne({ where: { created_at: req.body.date, profile_id: req.body.profileId } })
                 .then(function (results) {
                     console.log(results);
                     res.send(results);
 
                 });
         }
-        if ( role == 'admin'|| role == 'children') {
-
-             trackerModel.findOne({ where: { created_at: req.body.date, mentee_id: req.body.childId } })
+        if ((role == 'admin') || (role == 'children')) {
+            console.log("ghljfljdlfhhjhjhjjj" + req.body.childId);
+            trackerModel.findOne({ where: { created_at: req.body.date, mentee_id: req.body.childId } })
                 .then(function (results) {
                     console.log(results);
                     res.send(results);
@@ -151,22 +150,22 @@ module.exports = function (testmodel) {
                 });
         }
         else {
-           connectionModel.findOne({ where: {profile_id: req.body.profileId } })
+            connectionModel.findOne({ where: { profile_id: req.body.profileId } })
                 .then(function (results) {
 
                     console.log(results);
-              //     childId=results.children_id;
-                    console.log("child id : ",results.children_id);
-                   // res.send(results);
+                    //     childId=results.children_id;
+                    console.log("child id : ", results.children_id);
+                    // res.send(results);
                     trackerModel.findOne({ where: { created_at: req.body.date, mentee_id: results.children_id } })
-                .then(function (result) {
-                    console.log(result);
-                    res.send(result);
+                        .then(function (result) {
+                            console.log(result);
+                            res.send(result);
+
+                        });
 
                 });
 
-                });
-         
 
         }
 

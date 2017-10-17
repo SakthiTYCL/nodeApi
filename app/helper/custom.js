@@ -56,13 +56,13 @@ module.exports = function (databaseBS, Sequelize) {
                                 console.log("ab");
                                 var strin = {};
                                 if (result != "" || result2 != "") {
-                                    strin.emailidpresent = "1";
+                                    strin.emailidpresent = 1;
                                 }
                                 if (result1 != "") {
-                                    strin.mobilenopresent = "1";
+                                    strin.mobilenopresent = 1;
                                 }
     
-                                strin.msg = "1";
+                                strin.msg = 1;
                                 strin.req = req.body;
     
                                 callBack(strin);
