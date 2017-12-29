@@ -51,26 +51,73 @@ module.exports = function (testmodel) {
 
 
     };
-
     trackerService.ListTrackerDates = function (req, testmodel, Sequelize, res) {
         console.log("welcome to listing of tracker users");
-
-        var id = req.body.id;
-        console.log(";dfjlsk" + id);
-        testmodel.findAll({
-            where: {
-                $or: [{ mentee_id: id }, { profile_id: id }],
-                $not: {
-                    location: "Nil"
+        var role=req.body.role;
+        var child_id=req.body.child_id;
+        var profile_id=req.body.profile_id
+        if("volunteer"==role || 'mentor'==role)
+        {
+            testmodel.findOne({
+                where:{
+                    profile_id:profile_id
                 }
-            }
-        }).then(function (results) {
-            console.log(results);
-            res.send(results);
-
-        });
+            }).then(function(result){
+                if(null!=result)
+                {
+                    //console.log()
+                    testmodel.findAll({
+                        where: {
+                            mentee_id: result.mentee_id
+                          
+                        }
+                    }).then(function (results) {
+                        //console.log(results);
+                        res.send(results);
+            
+                    });
+                }
+    
+            })
+    
+        }
+        if("children"==role || 'admin'==role)
+        {
+            testmodel.findAll({
+                where: {
+                    mentee_id: child_id
+                  
+                }
+            }).then(function (results) {
+                //console.log(results);
+                res.send(results);
+    
+            });
+        }
+      
+      
+              
 
     };
+    // trackerService.ListTrackerDates = function (req, testmodel, Sequelize, res) {
+    //     console.log("welcome to listing of tracker users");
+
+    //     var id = req.body.id;
+    //     console.log(";dfjlsk" + id);
+    //     testmodel.findAll({
+    //         where: {
+    //             $or: [{ mentee_id: id }, { profile_id: id }],
+    //             $not: {
+    //                 location: "Nil"
+    //             }
+    //         }
+    //     }).then(function (results) {
+    //         console.log(results);
+    //         res.send(results);
+
+    //     });
+
+    // };
 
     trackerService.mentorgraphDates = function (req, testmodel, Sequelize, res) {
         console.log("welcome to listing of tracker users");
@@ -105,7 +152,7 @@ module.exports = function (testmodel) {
     trackerService.ListTrackerDatesmentorid = function (req, testmodel, connectionControllerModel, Sequelize, res) {
         var profile_id = req.body.id;
         console.log(profile_id);
-        console.log("welcome to listing of tracker users");
+        console.log("welcome to listing of tracker users sldfjsldfjsldf");
         connectionControllerModel.findOne({
             where: {
                 profile_id: profile_id
@@ -117,9 +164,9 @@ module.exports = function (testmodel) {
                 where:
                 {
                     mentee_id: mentee_id,
-                    $not: {
-                        role: role
-                    }
+                    // $not: {
+                    //     role: role
+                    // }
                 }
             }).then(function (results) {
                 res.send(results);
@@ -130,62 +177,115 @@ module.exports = function (testmodel) {
     trackerService.reviewGraph = function (req, trackerModel,connectionModel, Sequelize, res) {
 
         console.log("welcome to listing of review details of tracker  of users");
-        var childId = req.body.childId;
+        var child_id = req.body.child_id;
         var role = req.body.role;
-        if( role == 'volunteer')
+        var created_at=req.body.date;
+        var profile_id=req.body.profile_id;
+
+        if("volunteer"==role || 'mentor'==role)
         {
-              trackerModel.findOne({ where: { created_at: req.body.date, profile_id: req.body.profileId } })
-                .then(function (results) {
-                    console.log(results);
-                    res.send(results);
-
-                });
+            trackerModel.findOne({
+                where:{
+                    profile_id:profile_id
+                }
+            }).then(function(result){
+                if(null!=result)
+                {
+                    //console.log()
+                    trackerModel.findOne({
+                        where: {
+                            mentee_id: result.mentee_id,
+                            created_at: created_at
+                          
+                        }
+                    }).then(function (results) {
+                        //console.log(results);
+                        res.send(results);
+            
+                    });
+                }
+    
+            })
+    
         }
-        if ( role == 'admin'|| role == 'children') {
-
-             trackerModel.findOne({ where: { created_at: req.body.date, mentee_id: req.body.childId } })
-                .then(function (results) {
-                    console.log(results);
-                    res.send(results);
-
-                });
+        if("children"==role || 'admin'==role)
+        {
+                console.log("inside children"+child_id);
+            trackerModel.findOne({
+                where: {
+                    mentee_id: child_id,
+                    created_at: created_at
+                  
+                }
+            }).then(function (results) {
+                //console.log(results);
+                res.send(results);
+    
+            }); 
         }
-        else {
-           connectionModel.findOne({ where: {profile_id: req.body.profileId } })
-                .then(function (results) {
+        // if( role == 'volunteer'|| role == 'mentor')
+        // {
+            //   trackerModel.findOne({ where: { created_at: req.body.date } })
+            //     .then(function (results) {
+            //         console.log(results);
+            //         res.send(results);
 
-                    console.log(results);
-              //     childId=results.children_id;
-                    console.log("child id : ",results.children_id);
-                   // res.send(results);
-                    trackerModel.findOne({ where: { created_at: req.body.date, mentee_id: results.children_id } })
-                .then(function (result) {
-                    console.log(result);
-                    res.send(result);
+            //     });
+        // }
+        // if ( role == 'admin'|| role == 'children') {
 
-                });
+        //      trackerModel.findOne({ where: { created_at: req.body.date } })
+        //         .then(function (results) {
+        //             console.log(results);
+        //             res.send(results);
 
-                });
+        //         });
+        // }
+        // else {
+        //    connectionModel.findOne({ where: {profile_id: req.body.profileId } })
+        //         .then(function (results) {
+
+        //             console.log(results);
+        //       //     childId=results.children_id;
+        //             console.log("child id : ",results.children_id);
+        //            // res.send(results);
+        //             trackerModel.findOne({ where: { created_at: req.body.date, mentee_id: results.children_id } })
+        //         .then(function (result) {
+        //             console.log(result);
+        //             res.send(result);
+
+        //         });
+
+        //         });
          
 
-        }
+        // }
 
 
     }
     // cumulativegraph start
     trackerService.cumulativegraph = function (req, trackerModel, Sequelize, res) {
         var profileId = req.body.profileId;
-        trackerModel.findAll({
-            where:
-            {
-                profile_id: profileId
-
+        console.log("my cumulative graph to fetch only date for dropdown");
+        testmodel.findOne({
+            where:{
+                profile_id:profileId
             }
-        }).then(function (results) {
+        }).then(function(result){
+            trackerModel.findAll({
+                where:
+                {
+                   mentee_id:result.mentee_id
+    
+                }
+            }).then(function (results) {
+    
+                res.send(results);
+            });
+    
 
-            res.send(results);
-        });
-    }
+        })
+           }
     trackerService.cumulativegraphwithdate = function (req, trackerModel, Sequelize, res) {
         console.log("welcome to listing of review details of tracker  of users");
         var common = req.body.common;
