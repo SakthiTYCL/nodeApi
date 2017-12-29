@@ -174,7 +174,7 @@ module.exports = function (testmodel) {
             });
         })
     };
-    trackerService.reviewGraph = function (req, trackerModel,connectionModel, Sequelize, res) {
+    trackerService.reviewGraph = function (req, trackerModel, connectionModel, Sequelize, res) {
 
         console.log("welcome to listing of review details of tracker  of users");
         var child_id = req.body.child_id;
@@ -282,8 +282,6 @@ module.exports = function (testmodel) {
     
                 res.send(results);
             });
-    
-
         })
            }
     trackerService.cumulativegraphwithdate = function (req, trackerModel, Sequelize, res) {
