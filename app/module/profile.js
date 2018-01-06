@@ -90,13 +90,13 @@ module.exports = {
                 //     isNumeric: true
                 // }
             },
-            phone: {
-                type: Sequelize.INTEGER,
-                // validate: {
-                //     notEmpty: true,
-                //     isNumeric: true
-                // }
-            },
+            // phone: {
+            //     type: Sequelize.INTEGER,
+            //     // validate: {
+            //     //     notEmpty: true,
+            //     //     isNumeric: true
+            //     // }
+            //},
             email_id: {
                 type: Sequelize.STRING,
                 // validate: {

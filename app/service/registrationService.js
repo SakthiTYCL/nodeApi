@@ -382,7 +382,7 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
                             var mailOptions = {
                                 to: email_id,
                                 subject: "Verification mail",
-                                text: "Please click this link To Verify" + BASEURL + "/app/emailVerification/view/verification.html?id=" + encrypted_email
+                                text: "Please click this link To Verify " + BASEURL + "/app/emailVerification/view/verification.html?id=" + encrypted_email
                             }
                             verification.smtpTransport.sendMail(mailOptions, function (error, response) {
                                 if (error) {
