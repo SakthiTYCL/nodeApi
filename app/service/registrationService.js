@@ -371,7 +371,7 @@ module.exports = function (profile, testmodel, databaseBS, Sequelize) {
                             email_id: email_id,
                             encrypted_email: encrypted_email,
                             role: role,
-                            password: hashed
+                            password: hashed    
                         }).then(function (ress) {
                             console.log("suces inside");
                             var res = {};

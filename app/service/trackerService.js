@@ -136,6 +136,27 @@ module.exports = function (testmodel) {
         });
 
     };
+
+    trackerService.trackerDatesToVerify = function (req, testmodel, Sequelize, res) {
+        console.log("welcome to listing of tracker users");
+        if(req.body.trackerDate=='12/07/2017'){
+            valid=false;
+        }
+        testmodel.findOne({
+            where:{
+            profile_id:req.body.profileId,
+            date:req.body.trackerDate
+            }
+        }).then(function(result){
+            if(result!=null)
+            {
+                res.send(false);
+            }
+               else
+            res.send(true);
+        });
+        };
+
     trackerService.adminmentorgraphDates = function (req, testmodel, Sequelize, res) {
         var mentee_id = req.body.id;
         console.log(mentee_id)

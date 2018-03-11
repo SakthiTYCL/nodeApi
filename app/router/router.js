@@ -14,6 +14,7 @@ module.exports = function (databaseBS, Sequelize) {
         router.post('/childReviewDatesMentor', childrenReviewRouter.childReviewDatesMentor);  // to fetch dates for mentor
         router.post('/trackerDates', trackerRouter.ListDates);// list dates at the graph module
         router.post('/trackerDatesMentor', trackerRouter.ListTrackerDatesmentorid);
+        router.post('/trackerDatesToVerify', trackerRouter.trackerDatesToVerify);// list dates at the graph module
         router.post('/tracker', trackerRouter.Tracker);// tracker form with the holistic indicators
         router.post('/review', childrenReviewRouter.ChildrenReview);// child review form
         router.post('/viewReviewDetail', trackerRouter.ReviewGraph);//graph generation
